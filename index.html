@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recon Web Tool</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3a0ca3;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --danger: #ef233c;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+      color: var(--dark);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .subtitle {
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
+    
+    .search-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .search-form {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .search-input {
+      flex: 1;
+      padding: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+    
+    .search-btn {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    }
+    
+    .search-btn:active {
+      transform: translateY(0);
+    }
+    
+    .results-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    .results-tabs {
+      display: flex;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .tab-btn {
+      padding: 1rem 1.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      color: #6c757d;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .tab-btn.active {
+      color: var(--primary);
+    }
+    
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+    }
+    
+    .tab-content {
+      padding: 1.5rem;
+      display: none;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-family: 'Courier New', Courier, monospace;
+      line-height: 1.5;
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 2rem;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #e9ecef;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .stats {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .stat-card {
+      flex: 1;
+      min-width: 200px;
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .stat-card h3 {
+      font-size: 0.9rem;
+      color: #6c757d;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-card p {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .copy-btn {
+      background: #e9ecef;
+      border: none;
+      border-radius: 4px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.2s ease;
+    }
+    
+    .copy-btn:hover {
+      background: #dee2e6;
+    }
+    
+    @media (max-width: 768px) {
+      .search-form {
+        flex-direction: column;
+      }
+      
+      .search-btn {
+        padding: 1rem;
+        justify-content: center;
+      }
+      
+      .results-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Domain Reconnaissance Tool</h1>
+      <p class="subtitle">Comprehensive domain information at your fingertips</p>
+    </header>
+    
+    <div class="search-container">
+      <form id="scanForm" class="search-form">
+        <input type="text" id="domain" class="search-input" placeholder="Enter domain (e.g. example.com)" required>
+        <button type="submit" class="search-btn">
+          <i class="fas fa-search"></i> Scan
+        </button>
+      </form>
+    </div>
+    
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Gathering intelligence about the domain...</p>
+    </div>
+    
+    <div class="results-container" id="resultsContainer" style="display: none;">
+      <div class="results-tabs" id="resultsTabs">
+        <button class="tab-btn active" data-tab="summary">Summary</button>
+        <button class="tab-btn" data-tab="whois">WHOIS</button>
+        <button class="tab-btn" data-tab="dns">DNS</button>
+        <button class="tab-btn" data-tab="nmap">Nmap</button>
+        <button class="tab-btn" data-tab="network">Network Info</button>
+      </div>
+      
+      <div class="tab-content active" id="summaryTab">
+        <div id="summaryContent"></div>
+      </div>
+      
+      <div class="tab-content" id="whoisTab">
+        <button class="copy-btn" onclick="copyToClipboard('whoisContent')">
+          <i class="far fa-copy"></i> Copy
+        </button>
+        <pre id="whoisContent"></pre>
+      </div>
+      
+      <div class="tab-content" id="dnsTab">
+        <button class="copy-btn" onclick="copyToClipboard('dnsContent')">
+          <i class="far fa-copy"></i> Copy
+        </button>
+        <pre id="dnsContent"></pre>
+      </div>
+      
+      <div class="tab-content" id="nmapTab">
+        <button class="copy-btn" onclick="copyToClipboard('nmapContent')">
+          <i class="far fa-copy"></i> Copy
+        </button>
+        <pre id="nmapContent"></pre>
+      </div>
+      
+      <div class="tab-content" id="networkTab">
+        <button class="copy-btn" onclick="copyToClipboard('networkContent')">
+          <i class="far fa-copy"></i> Copy
+        </button>
+        <pre id="networkContent"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching functionality
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Remove active class from all buttons and content
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked button and corresponding content
+        btn.classList.add('active');
+        const tabId = btn.getAttribute('data-tab') + 'Tab';
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+    
+    // Form submission
+    document.getElementById('scanForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const domain = document.getElementById('domain').value.trim();
+      
+      if (!domain) return;
+      
+      // Show loading state
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('resultsContainer').style.display = 'none';
+      
+      try {
+        const res = await fetch('/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain })
+        });
+        
+        const data = await res.json();
+        
+        // Populate results
+        document.getElementById('whoisContent').textContent = data.whois || 'No WHOIS data available';
+        document.getElementById('dnsContent').textContent = data.dns || 'No DNS data available';
+        document.getElementById('nmapContent').textContent = data.nmap || 'No Nmap data available';
+        document.getElementById('networkContent').textContent = data.network_info ? 
+          JSON.stringify(data.network_info, null, 2) : 'No network info available';
+        
+        // Create summary
+        createSummary(data, domain);
+        
+        // Show results
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'block';
+        
+      } catch (err) {
+        document.getElementById('loading').style.display = 'none';
+        alert('An error occurred during the scan. Please try again.');
+        console.error(err);
+      }
+    });
+    
+    function createSummary(data, domain) {
+      const summaryEl = document.getElementById('summaryContent');
+      summaryEl.innerHTML = '';
+      
+      // Extract IP from DNS data if available
+      let ipAddress = 'Not found';
+      if (data.dns) {
+        const ipLine = data.dns.split('\n').find(line => line.includes('Address:') && !line.includes('127.0.0.1'));
+        if (ipLine) {
+          ipAddress = ipLine.split('Address:')[1].trim();
+        }
+      }
+      
+      // Extract registrar from WHOIS if available
+      let registrar = 'Not found';
+      if (data.whois) {
+        const registrarMatch = data.whois.match(/Registrar: (.+)/i) || 
+                              data.whois.match(/Registrar WHOIS Server: (.+)/i);
+        if (registrarMatch) {
+          registrar = registrarMatch[1];
+        }
+      }
+      
+      // Extract open ports from Nmap if available
+      let openPorts = 'Not found';
+      if (data.nmap) {
+        const portLines = data.nmap.split('\n').filter(line => line.includes('open'));
+        openPorts = portLines.length > 0 ? portLines.map(line => line.split('/')[0].trim()).join(', ') : 'None';
+      }
+      
+      // Create summary cards
+      summaryEl.innerHTML = `
+        <div class="stats">
+          <div class="stat-card">
+            <h3>Domain</h3>
+            <p>${domain}</p>
+          </div>
+          <div class="stat-card">
+            <h3>IP Address</h3>
+            <p>${ipAddress}</p>
+          </div>
+          <div class="stat-card">
+            <h3>Registrar</h3>
+            <p>${registrar}</p>
+          </div>
+          <div class="stat-card">
+            <h3>Open Ports</h3>
+            <p>${openPorts}</p>
+          </div>
+        </div>
+        
+        <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Quick Actions</h3>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <button class="search-btn" style="padding: 0.5rem 1rem;" onclick="window.open('https://who.is/whois/${domain}')">
+            <i class="fas fa-globe"></i> WHOIS Lookup
+          </button>
+          <button class="search-btn" style="padding: 0.5rem 1rem; background: linear-gradient(to right, var(--success), var(--primary));" 
+            onclick="window.open('https://www.virustotal.com/gui/domain/${domain}')">
+            <i class="fas fa-shield-virus"></i> VirusTotal
+          </button>
+        </div>
+      `;
+    }
+    
+    function copyToClipboard(elementId) {
+      const element = document.getElementById(elementId);
+      const text = element.textContent;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = event.target.innerHTML;
+        event.target.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(() => {
+          event.target.innerHTML = originalText;
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy text: ', err);
+      });
+    }
+  </script>
+</body>
+</html>
